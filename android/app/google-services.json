@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "9299034837",
+    "project_id": "twitterhackathon-70129",
+    "storage_bucket": "twitterhackathon-70129.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:9299034837:android:01d0e0fa49e006e534985c",
+        "android_client_info": {
+          "package_name": "com.example.twitter_hackathon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "9299034837-agni7kpqd2mqa4o6f7hvhs8voi9lkp63.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAE6M4nm5JjvrdsbeooqPxSyt0MQSuOFYg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "9299034837-agni7kpqd2mqa4o6f7hvhs8voi9lkp63.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

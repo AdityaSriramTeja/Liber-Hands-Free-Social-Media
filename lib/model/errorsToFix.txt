@@ -1,0 +1,20 @@
+1. listening to speech after exiting search doesn't work (teja)
+2. username and translation values null in search (shreyas)
+3. need to add splash screen [language and privacy ](shreyas)
+4. need to add privacy setting -> make UI dynamic (hands on or hands free)
+5. send privacy setting and splash value to firerbase, and make values dynamic [in spash and setting] (teja)
+6. add  attachments (O)
+7. make tweets expandable incase user has a lot of text(O)
+8. change pitch for voice assistant -> done
+9. add twitter logo in feed screen (O)
+10. update pfp. 
+
+
+ Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LanguagePreferences(
+                        currentUserName: widget.currentUserName,
+                        currentUserUID: widget.currentUserUID,
+                        currentUserProfilePic: widget.currentUserProfilePic)),
+              );
