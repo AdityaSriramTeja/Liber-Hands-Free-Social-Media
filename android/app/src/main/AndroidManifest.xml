@@ -11,7 +11,7 @@
     </intent>
 </queries>
    <application
-        android:label="twitter_hackathon"
+        android:label="Liber: Hands-Free Social Media"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:translator/translator.dart';
 import 'package:twitter_hackathon/getTweets.dart';
 import 'package:twitter_hackathon/languagePreferences.dart';
+import 'package:twitter_hackathon/main.dart';
 
 import '../feed.dart';
 import '../model/note.dart';
@@ -10,8 +11,17 @@ import '../model/note.dart';
 class MySearchDelegate extends SearchDelegate {
   User? currentUser = FirebaseAuth.instance.currentUser;
   List<String> searchResults = [
-    'twitterdev',
-    'programming',
+    'flutter',
+    'gamedev',
+    'youtube',
+    'blackpink',
+    'rihanna',
+    'toronto',
+    'marvel',
+    'entertainment',
+    'montreal',
+    'wonderland',
+    'gym'
   ];
   String finalTranslation;
   bool isHandsFree;
@@ -58,6 +68,7 @@ class MySearchDelegate extends SearchDelegate {
               currentUserUID: currentUser!.uid,
               currentUserName: currentUser!.displayName,
               currentUserProfilePic: currentUser!.photoURL,
+              queries: MainPage.searchQuery,
             );
           } else if (snapshot.hasError) {
             return const Center(

@@ -1,8 +1,27 @@
+import 'package:alan_voice/alan_voice.dart';
 import 'package:flutter/material.dart';
 import 'package:onboarding/onboarding.dart';
 
+import 'feed.dart';
+
 class OnBoarding extends StatefulWidget {
-  const OnBoarding({Key? key}) : super(key: key);
+  final isSetup;
+  final isHandFree;
+  final currentUsername;
+  final currentUserUID;
+  final currentUserProfilePic;
+  final pageValue;
+  final queries;
+  const OnBoarding(
+      {Key? key,
+      required this.isSetup,
+      required this.isHandFree,
+      required this.currentUsername,
+      required this.currentUserUID,
+      required this.currentUserProfilePic,
+      required this.queries,
+      this.pageValue})
+      : super(key: key);
 
   @override
   State<OnBoarding> createState() => _OnBoardingState();
@@ -11,6 +30,7 @@ class OnBoarding extends StatefulWidget {
 class _OnBoardingState extends State<OnBoarding> {
   late Material materialButton;
   late int index;
+
   final onboardingPagesList = [
     PageModel(
       widget: DecoratedBox(
@@ -51,7 +71,42 @@ class _OnBoardingState extends State<OnBoarding> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "'Tap' is the command word",
+                    "Say 'Hey Alan' to activate voice assistant. Clicking on the hands-free button will also activate the voice assistant",
+                    style: TextStyle(
+                      color: Colors.white,
+                      letterSpacing: 0.7,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 45.0, vertical: 10),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "After enabling voice assistant:",
+                    style: TextStyle(
+                      color: Colors.white,
+                      letterSpacing: 0.7,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(
+                  left: 55.0,
+                  right: 45.0,
+                  top: 5,
+                  bottom: 5,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "--> Say 'Play' to start listening to the tweets ",
                     style: TextStyle(
                         color: Colors.white,
                         letterSpacing: 0.7,
@@ -62,11 +117,137 @@ class _OnBoardingState extends State<OnBoarding> {
                 ),
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 45.0, vertical: 100),
+                padding: EdgeInsets.only(
+                  left: 55.0,
+                  right: 45.0,
+                  top: 5,
+                  bottom: 5,
+                ),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Keep your files in closed safe so you can\'t lose them. Consider TrueNAS.',
+                    "--> Say 'Stop' to stop listening to the tweets ",
+                    style: TextStyle(
+                        color: Colors.white,
+                        letterSpacing: 0.7,
+                        height: 1.5,
+                        fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(
+                  left: 55.0,
+                  right: 45.0,
+                  top: 5,
+                  bottom: 5,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "--> Say 'Search' to search for any twitter queries",
+                    style: TextStyle(
+                        color: Colors.white,
+                        letterSpacing: 0.7,
+                        height: 1.5,
+                        fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(
+                  left: 55.0,
+                  right: 45.0,
+                  top: 5,
+                  bottom: 5,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "--> Say 'Help' to view the resources guide",
+                    style: TextStyle(
+                        color: Colors.white,
+                        letterSpacing: 0.7,
+                        height: 1.5,
+                        fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(
+                  left: 55.0,
+                  right: 45.0,
+                  top: 5,
+                  bottom: 5,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "--> Say 'Logout' to logout from the app",
+                    style: TextStyle(
+                        color: Colors.white,
+                        letterSpacing: 0.7,
+                        height: 1.5,
+                        fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+    PageModel(
+      widget: DecoratedBox(
+        decoration: BoxDecoration(
+          color: background,
+          border: Border.all(
+            width: 0.0,
+            color: background,
+          ),
+        ),
+        child: SingleChildScrollView(
+          controller: ScrollController(),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 45.0,
+                  right: 45,
+                  bottom: 90,
+                  top: 90,
+                ),
+                child: Image.asset(
+                  'assets/images/support2.gif',
+                  //color: pageImageColor,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 45.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'HANDS ON',
+                    style: pageTitleStyle,
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(
+                  right: 45.0,
+                  left: 45,
+                  top: 45.0,
+                  bottom: 150,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Seamlessly switch to hands-on mode to use the app without voice commands',
                     style: pageInfoStyle,
                     textAlign: TextAlign.left,
                   ),
@@ -91,12 +272,14 @@ class _OnBoardingState extends State<OnBoarding> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 45.0,
-                  vertical: 90.0,
+                padding: const EdgeInsets.only(
+                  right: 45.0,
+                  left: 45.0,
+                  top: 50,
+                  bottom: 30,
                 ),
                 child: Image.asset(
-                  'assets/images/support2.gif',
+                  'assets/images/privacy.jpg',
                   //color: pageImageColor,
                 ),
               ),
@@ -105,21 +288,42 @@ class _OnBoardingState extends State<OnBoarding> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'HANDS ON',
+                    'PRIVACY',
                     style: pageTitleStyle,
                     textAlign: TextAlign.left,
                   ),
                 ),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 45.0, vertical: 10.0),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Give others access to any file or folders you choose',
-                    style: pageInfoStyle,
-                    textAlign: TextAlign.left,
+                  child: Column(
+                    children: [
+                      Text(
+                        "You can always view if the mic is turned on/off on the app's drawer",
+                        style: pageInfoStyle,
+                        textAlign: TextAlign.left,
+                      ),
+                    ],
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 0, right: 45, top: 10),
+                child: Column(
+                  children: [
+                    Text(
+                      "Black App Bar  = Hands-Free",
+                      style: pageInfoStyle,
+                      textAlign: TextAlign.left,
+                    ),
+                    Text(
+                      "Yellow App Bar = Hands-On",
+                      style: pageInfoStyle,
+                      textAlign: TextAlign.left,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -162,11 +366,12 @@ class _OnBoardingState extends State<OnBoarding> {
                 ),
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 45.0, vertical: 10.0),
+                padding: EdgeInsets.only(
+                    right: 45.0, left: 45, top: 10.0, bottom: 240),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Reach your files anytime from any devices anywhere',
+                    "Your settings and preferences will be in sync across all the devices you use",
                     style: pageInfoStyle,
                     textAlign: TextAlign.left,
                   ),
@@ -184,6 +389,8 @@ class _OnBoardingState extends State<OnBoarding> {
     super.initState();
     materialButton = _skipButton();
     index = 0;
+    //AlanVoice.removeButton();
+    //setupAlan();
   }
 
   Material _skipButton({void Function(int)? setIndex}) {
@@ -194,8 +401,8 @@ class _OnBoardingState extends State<OnBoarding> {
         borderRadius: defaultSkipButtonBorderRadius,
         onTap: () {
           if (setIndex != null) {
-            index = 2;
-            setIndex(2);
+            index = 3;
+            setIndex(3);
           }
         },
         child: const Padding(
@@ -209,22 +416,73 @@ class _OnBoardingState extends State<OnBoarding> {
     );
   }
 
-  Material get _signupButton {
+  Material get _showFeedButton {
     return Material(
       borderRadius: defaultProceedButtonBorderRadius,
       color: defaultProceedButtonColor,
       child: InkWell(
         borderRadius: defaultProceedButtonBorderRadius,
         onTap: () {},
-        child: const Padding(
+        child: Padding(
           padding: defaultProceedButtonPadding,
-          child: Text(
-            'Sign up',
-            style: defaultProceedButtonTextStyle,
+          child: GestureDetector(
+            onTap: () {
+              if (widget.isSetup) {
+                print(
+                    "=======================PUSH REPLACINg====================");
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Feed(
+                      isSearchFeed: false,
+                      searchTweets: null,
+                      isLogoutAllowed: true,
+                      isHandsFree: widget.isHandFree,
+                      currentUserName: widget.currentUsername,
+                      currentUserUID: widget.currentUserUID,
+                      currentUserProfilePic: widget.currentUserProfilePic,
+                      queries: widget.queries,
+                    ),
+                  ),
+                );
+              } else {
+                print("=======================POPPING OFF====================");
+                Navigator.popUntil(context, (route) => route.isFirst);
+              }
+            },
+            child: Text(
+              'Show Feed',
+              style: defaultProceedButtonTextStyle,
+            ),
           ),
         ),
       ),
     );
+  }
+
+  setupAlan() {
+    AlanVoice.addButton(
+        "bb5b48e187d9f0339e6d48eb69d453062e956eca572e1d8b807a3e2338fdd0dc/stage",
+        buttonAlign: AlanVoice.BUTTON_ALIGN_LEFT);
+
+    AlanVoice.callbacks.add((command) => handleCommand(command.data));
+  }
+
+  handleCommand(Map<String, dynamic> response) async {
+    //flutterTts.stop();
+    if (response["command"] == "go") {
+      nextPage(1);
+    } else if (response["command"] == "help two") {
+    } else {
+      print("Command was ${response["command"]}");
+    }
+  }
+
+  nextPage(int pageNum, {void Function(int)? setIndex}) {
+    if (setIndex != null) {
+      index = pageNum;
+      setIndex(pageNum);
+    }
   }
 
   @override
@@ -271,7 +529,7 @@ class _OnBoardingState extends State<OnBoarding> {
                         ),
                       ),
                       index == pagesLength - 1
-                          ? _signupButton
+                          ? _showFeedButton
                           : _skipButton(setIndex: setIndex)
                     ],
                   ),

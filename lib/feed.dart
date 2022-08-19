@@ -43,17 +43,19 @@ class Feed extends StatefulWidget {
   final String? currentUserUID;
   final String? currentUserProfilePic;
   final String? currentUserName;
+  final queries;
   //Constructor
-  Feed(
-      {Key? key,
-      required this.isSearchFeed,
-      required this.searchTweets,
-      required this.isLogoutAllowed,
-      required this.isHandsFree,
-      required this.currentUserUID,
-      required this.currentUserProfilePic,
-      required this.currentUserName})
-      : super(key: key);
+  Feed({
+    Key? key,
+    required this.isSearchFeed,
+    required this.searchTweets,
+    required this.isLogoutAllowed,
+    required this.isHandsFree,
+    required this.currentUserUID,
+    required this.currentUserProfilePic,
+    required this.currentUserName,
+    required this.queries,
+  }) : super(key: key);
 
   @override
   State<Feed> createState() => _FeedState();
@@ -111,9 +113,15 @@ class _FeedState extends State<Feed> {
     await flutterTts.stop();
     pause = !pause;
     await tdObject.deleteAll();
-    AlanVoice.removeButton();
+    //AlanVoice.removeButton();
     //Re-call the Twitter API and load up the tweets
-    var tweets = await tweetController.getTweets("twitterdev");
+    List<dynamic> queries = widget.queries;
+    print(
+        "===============================QUERIES FROM FEED DISPOSE: ${queries}}==========================");
+    Random random = new Random();
+    int randomNumber = random.nextInt(widget.queries.length);
+    //Get new tweets from the API
+    var tweets = await tweetController.getTweets(queries[randomNumber]);
 
     //Store tweets in database
     tweetController.storeTweetsinDB(tweets, finalTranslation);
@@ -295,18 +303,28 @@ class _FeedState extends State<Feed> {
             hasNavigation: false,
           ),
           GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
+            onTap: () async {
+              await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => OnBoarding()
-                    // HelpAndSupport(
-                    //   currentUserName: widget.currentUserName,
-                    //   currentUserProfilePic: widget.currentUserProfilePic,
-                    //   currentUserUID: widget.currentUserUID,
-                    //   isHandsFree: widget.isHandsFree,
-                    // ),
-                    ),
+                MaterialPageRoute(
+                  builder: (context) => OnBoarding(
+                    isSetup: false,
+                    isHandFree: widget.isHandsFree,
+                    currentUserProfilePic: widget.currentUserProfilePic,
+                    currentUserUID: widget.currentUserUID,
+                    currentUsername: widget.currentUserName,
+                    queries: widget.queries,
+                  ),
+                  // HelpAndSupport(
+                  //   currentUserName: widget.currentUserName,
+                  //   currentUserProfilePic: widget.currentUserProfilePic,
+                  //   currentUserUID: widget.currentUserUID,
+                  //   isHandsFree: widget.isHandsFree,
+                  // ),
+                ),
               );
+
+              setupAlan();
             },
             child: Container(
               color: Colors.amberAccent,
@@ -323,9 +341,11 @@ class _FeedState extends State<Feed> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => LanguagePreferences(
-                        currentUserName: widget.currentUserName,
-                        currentUserUID: widget.currentUserUID,
-                        currentUserProfilePic: widget.currentUserProfilePic)),
+                          currentUserName: widget.currentUserName,
+                          currentUserUID: widget.currentUserUID,
+                          currentUserProfilePic: widget.currentUserProfilePic,
+                          queries: widget.queries,
+                        )),
               );
             },
             child: Container(
@@ -356,6 +376,7 @@ class _FeedState extends State<Feed> {
     );
   }
 
+  bool loadButton = true;
   StreamBuilder<List<Note>> homeFeedBuilder() {
     return StreamBuilder(
       stream: Stream.fromFuture(tdObject.readAllNotes()),
@@ -363,6 +384,8 @@ class _FeedState extends State<Feed> {
         if (snapshot.hasData) {
           var tweets = snapshot.data as List<Note>;
 
+          //return Column(
+          //children: [
           return ScrollablePositionedList.builder(
               itemCount: tweets.length,
               itemScrollController: itemController,
@@ -379,6 +402,15 @@ class _FeedState extends State<Feed> {
                   translate: "Translate",
                 );
               });
+          // ElevatedButton(
+          //     onPressed: () {
+          //       setState(() {
+          //         loadButton = false;
+          //       });
+          //     },
+          //     child: Text("Load more tweets")),
+          //   ],
+          // );
         } else if (snapshot.hasError) {
           return Text('${snapshot.error}');
         }
@@ -411,6 +443,7 @@ class _FeedState extends State<Feed> {
   }
 
   logout() {
+    AlanVoice.removeButton();
     print("USER HAS CURRENTLY LOGGED OUT");
     if (widget.isLogoutAllowed) {
       firebaseAuth.signOut();
@@ -428,7 +461,8 @@ class _FeedState extends State<Feed> {
   setupAlan() {
     AlanVoice.addButton(
         "bb5b48e187d9f0339e6d48eb69d453062e956eca572e1d8b807a3e2338fdd0dc/stage",
-        buttonAlign: AlanVoice.BUTTON_ALIGN_RIGHT);
+        buttonAlign: AlanVoice.BUTTON_ALIGN_LEFT);
+
     AlanVoice.callbacks.add((command) => handleCommand(command.data));
   }
 
@@ -436,20 +470,20 @@ class _FeedState extends State<Feed> {
   handleCommand(Map<String, dynamic> response) async {
     //flutterTts.stop();
     if (response["command"] == "stop") {
+      AlanVoice.deactivate();
       print("===========STOP COMMAND IS CALLED==========");
       isScrollingEnabledHf = true;
       stopSpeechHandsFree();
     } else if (response["command"] == "play") {
-      // await Future.delayed(Duration(seconds: 2), () {
-      AlanVoice.deactivate();
-      //   });
       print("===========PLAY IS CALLED==========");
       if (isScrollingEnabledHf) {
         setState(() {
+          AlanVoice.deactivate();
           pause = false;
         });
         isScrollingEnabledHf = false;
         _startScrollingTweetsHandsFree(counter: counter);
+        //    readTweetsAlan();
       }
     } else if (response["command"] == "stop.") {
       print("===========STOP COMMAND IS CALLED==========");
@@ -460,15 +494,57 @@ class _FeedState extends State<Feed> {
       setState(() {
         pause = false;
       });
-    } else {
+    } else if (response["command"] == "search") {
+      showSearch(
+        context: context,
+        delegate: MySearchDelegate(finalTranslation, widget.isHandsFree),
+      );
+    } else if (response["command"] == "help") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OnBoarding(
+            isSetup: false,
+            isHandFree: widget.isHandsFree,
+            currentUserProfilePic: widget.currentUserProfilePic,
+            currentUserUID: widget.currentUserUID,
+            currentUsername: widget.currentUserName,
+            queries: widget.queries,
+          ),
+        ),
+      );
+
+      //setupAlan();
+    } else if (response["command"] == "settings") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LanguagePreferences(
+                  currentUserName: widget.currentUserName,
+                  currentUserUID: widget.currentUserUID,
+                  currentUserProfilePic: widget.currentUserProfilePic,
+                  queries: widget.queries,
+                )),
+      );
+    } else if (response["command"] == "logout") {
+      logout();
+    }
+    // else if (response["command"] == "getSearch") {
+    //   String query = response["text"];
+    //   print("=================QUERY IS ${query}==============");
+    // }
+    else {
       print("Command was ${response["command"]}");
     }
   }
 
   scrollToItem(int i) async {
-    if (itemController.isAttached) {
-      itemController.scrollTo(index: i, duration: const Duration(seconds: 2));
-    }
+    Future.delayed(Duration(seconds: 1), () {
+      if (itemController.isAttached) {
+        itemController.scrollTo(index: i, duration: const Duration(seconds: 2));
+      }
+    });
+
     print("Scrolling");
   }
 
@@ -491,10 +567,10 @@ class _FeedState extends State<Feed> {
   }
 
   void stopSpeechHandsFree() async {
+    await flutterTts.stop();
     setState(() {
       pause = true;
     });
-    await flutterTts.stop();
   }
 
   _startScrollingTweets({int counter = 0}) async {
@@ -512,7 +588,7 @@ class _FeedState extends State<Feed> {
     //reading the notes out loud
     for (int j = counter; j < tweets.length; j++) {
       flutterTts.setPitch(0.7);
-      flutterTts.setSpeechRate(0.46);
+      flutterTts.setSpeechRate(0.5);
       await flutterTts.awaitSpeakCompletion(true);
       print("================SCROLOLLING TO ${j}==========");
       await flutterTts
@@ -545,7 +621,7 @@ class _FeedState extends State<Feed> {
       //checkVolumeAlan();
       flutterTts.setVolume(0.7);
       flutterTts.setPitch(0.7);
-      flutterTts.setSpeechRate(0.5);
+      flutterTts.setSpeechRate(0.55);
 
       await flutterTts.awaitSpeakCompletion(true);
       print("================SCROLOLLING TO ${j}==========");
@@ -561,30 +637,32 @@ class _FeedState extends State<Feed> {
       //     split.add(tempString);
       //   }
       // }
-      List<String> split = tweets[j].description.split(" ");
-      await flutterTts.speak("${tweets[j].title}Tweeted");
-      int INCREMENTOR = 3;
-      int indexStart = 0;
-      int indexEnd = INCREMENTOR;
+      // List<String> split = tweets[j].translated.split(" ");
 
-      String word = "";
-      while (true) {
-        for (int i = indexStart; i < indexEnd; i++) {
-          if (i >= split.length) {
-            break;
-          }
-          word = word + " " + split[i];
-        }
+      // int INCREMENTOR = 20;
+      // int indexStart = 0;
+      // int indexEnd = INCREMENTOR;
+      // await flutterTts.speak("${tweets[j].title}Tweeted");
+      // String word = "";
+      // while (true) {
+      //   for (int i = indexStart; i < indexEnd; i++) {
+      //     if (i >= split.length) {
+      //       break;
+      //     }
+      //     word = word + " " + split[i];
+      //   }
 
-        await flutterTts.speak(word);
-        word = "";
-        print(
-            "===========SENTENCE BEING READ==========${word}=====================");
-        checkVolumeAlan();
-        indexStart += INCREMENTOR;
-        indexEnd += INCREMENTOR;
-        if (indexStart >= split.length) break;
-      }
+      //   await flutterTts.speak(word);
+      //   word = "";
+      await flutterTts
+          .speak("${tweets[j].title} Tweeted ${tweets[j].translated}");
+      // print(
+      //     "===========SENTENCE BEING READ==========${word}=====================");
+      //   checkVolumeAlan();
+      //   indexStart += INCREMENTOR;
+      //   indexEnd += INCREMENTOR;
+      //   if (indexStart >= split.length) break;
+      // }
 
       if (pause == true) {
         print("================J AT PAUSED AT ${j + 1} ========");
@@ -605,7 +683,7 @@ class _FeedState extends State<Feed> {
   void checkVolumeAlan() async {
     if (await AlanVoice.isActive()) {
       print("=========ALAN VOICE IS LOW=========");
-      await flutterTts.setVolume(0.01);
+      await flutterTts.setVolume(0.02);
     } else if (!(await AlanVoice.isActive())) {
       print("=========ALAN VOICE IS HIGH=========");
       await flutterTts.setVolume(0.7);
@@ -690,6 +768,20 @@ class _FeedState extends State<Feed> {
         finalTranslation = fields!['translation'];
         widget.isHandsFree = fields['hands_free'];
       });
+    });
+  }
+
+  void readTweetsAlan() async {
+    dynamic tweets;
+    if (widget.isSearchFeed) {
+      tweets = widget.searchTweets;
+    } else {
+      tweets = await tdObject.readAllNotes();
+    }
+    print("==============ALAN SPEAKING ======================");
+    AlanVoice.playText(tweets[0].description + " " + tweets[1].description);
+    Future.delayed(Duration(seconds: 4), () {
+      AlanVoice.deactivate();
     });
   }
 

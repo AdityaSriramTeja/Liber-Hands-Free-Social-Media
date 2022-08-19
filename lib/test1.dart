@@ -241,7 +241,7 @@ class _LanguagePreferencesState extends State<LanguagePreferences> {
                       print(
                           "===============================QUERIES FROM LANG PREF: ${queries}}==========================");
                       Random random = new Random();
-                      int randomNumber = random.nextInt(widget.queries.length);
+                      int randomNumber = random.nextInt(4);
                       //Get new tweets from the API
                       var tweets = await tweetController
                           .getTweets(queries[randomNumber]);

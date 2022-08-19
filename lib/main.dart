@@ -164,9 +164,13 @@
 //   //   firebaseAuth.signOut();
 //   // }
 // }
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:twitter_hackathon/getTweets.dart';
 import 'package:twitter_hackathon/languagePreferences.dart';
 import 'package:twitter_hackathon/splashLanguage.dart';
@@ -178,6 +182,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
   await Firebase.initializeApp(
       // options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -218,6 +223,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MainPage extends StatelessWidget {
+  static List<dynamic> searchQuery = [];
   const MainPage({Key? key}) : super(key: key);
 
   @override
@@ -245,40 +251,150 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  List<Color> gradient1 = [Color(0xFF043E49), Color(0xFF1E7879)];
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          elevation: 1,
-          backgroundColor: Colors.white,
-          leading: Container(
-            margin: const EdgeInsets.all(10.0),
-          ),
-          title: const Text(
-            'Login Screen',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerRight, end: Alignment.bottomLeft,
+              //For Properties for Radial Gradient
+              // radius: 3.5,
+              //center: Alignment.topRight,
+              colors: gradient1,
             ),
           ),
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 30),
-              child: Center(
+          child: Column(
+            //mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: RotatedBox(
+                        quarterTurns: 3,
+                        child: Text(
+                          'Liber',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height / 8),
+                    child: Opacity(
+                      opacity: 0.81,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const <Widget>[
+                          Text(
+                            'The Hands-Free',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            'Social Media',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            'App:',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 0),
                 child: Image.asset('assets/images/logo.png'),
               ),
-            ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => login(),
-                child: const Text("Login with twitter"),
+              SizedBox(height: 30),
+              Container(
+                height: 50.0,
+                margin: EdgeInsets.all(10),
+                child: RaisedButton(
+                  onPressed: () {
+                    login();
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(80.0)),
+                  padding: EdgeInsets.all(0.0),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xff374ABE), Color(0xff64B6FF)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(30.0)),
+                    child: Container(
+                      constraints:
+                          BoxConstraints(maxWidth: 250.0, minHeight: 50.0),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Login",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ));
+              Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            "Developed by Aditya Sriramteja Chilukuri",
+                            style: GoogleFonts.bebasNeue(
+                              textStyle:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            "and Shreyas Peddi",
+                            style: GoogleFonts.bebasNeue(
+                              textStyle:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ))
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // Widget buildBottomIconButton(IconData icon, Color color) {
@@ -385,11 +501,17 @@ class _LoginScreenState extends State<LoginScreen> {
             var fields = value.data();
 
             languageCode = fields!['translation'];
+            MainPage.searchQuery = fields['search_query'];
           });
 
           LanguagePreferences.defaultLanguage = languageCode;
-          MyApp myApp = MyApp();
-          var tweets = await tweetController.getTweets("twitterdev");
+          List<dynamic> queries = MainPage.searchQuery;
+          print(
+              "===============================QUERIES FROM MAIN: ${queries}}==========================");
+          Random random = new Random();
+          int randomNumber = random.nextInt(4);
+          //Get new tweets from the API
+          var tweets = await tweetController.getTweets(queries[randomNumber]);
           //Store tweets in database
           await tweetController.storeTweetsinDB(tweets, languageCode);
         }

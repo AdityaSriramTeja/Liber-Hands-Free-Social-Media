@@ -1,3 +1,4 @@
+import 'package:faker/faker.dart';
 import 'package:translator/translator.dart';
 import 'package:twitter_api_v2/twitter_api_v2.dart' as v2;
 import 'package:twitter_hackathon/tweet_database.dart';
@@ -31,11 +32,12 @@ class GetTweets {
   //Calls the twitter using bearer token. Tweets are stored based on a query
   Future<TwitterResponse<List<TweetData>, TweetMeta>> getTweets(
       String search) async {
+    print("=================SEARCH QUERY IS $search=============");
     var tweets;
     try {
       tweets = await twitter.tweetsService.searchRecent(
           query: '${search}',
-          maxResults: 20,
+          maxResults: 10,
           expansions: [v2.TweetExpansion.authorId]);
       //tweets.data[0].authorId;
     } on v2.TwitterException catch (e) {
@@ -48,12 +50,13 @@ class GetTweets {
   //Stores tweet object data from api into local database
   storeTweetsinDB(var tweets, String lang) async {
     for (var i = 0; i < tweets.data.length; i++) {
-      String twitter_username = "";
-      await twitter.usersService
-          .lookupById(userId: tweets.data[i].authorId)
-          .then((value) {
-        twitter_username = value.data.username;
-      });
+      String twitter_username = faker.person.firstName();
+
+      // await twitter.usersService
+      //     .lookupById(userId: tweets.data[i].authorId)
+      //     .then((value) {
+      //   twitter_username = value.data.username;
+      // });
       print("TWITTER USERNAME:" + twitter_username);
 
       String translation = tweets.data[i].text;
